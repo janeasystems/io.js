@@ -61,6 +61,7 @@ if /i "%1"=="test-simple"   set test=test-simple&goto arg-ok
 if /i "%1"=="test-message"  set test=test-message&goto arg-ok
 if /i "%1"=="test-gc"       set test=test-gc&set buildnodeweak=1&goto arg-ok
 if /i "%1"=="test-all"      set test=test-all&set buildnodeweak=1&goto arg-ok
+if /i "%1"=="test-ci"       set test=test-ci&goto arg-ok
 if /i "%1"=="test"          set test=test&goto arg-ok
 @rem Include small-icu support with MSI installer
 if /i "%1"=="msi"           set msi=1&set licensertf=1&set download_arg="--download=all"&set i18n_arg=small-icu&goto arg-ok
@@ -198,6 +199,7 @@ if errorlevel 1 echo Failed to sign msi&goto exit
 :run
 @rem Run tests if requested.
 if "%test%"=="" goto exit
+if "%test%"=="test-ci" goto run-test-ci
 
 if "%config%"=="Debug" set test_args=--mode=debug
 if "%config%"=="Release" set test_args=--mode=release
@@ -225,6 +227,15 @@ goto exit
 echo running 'python tools/test.py %test_args%'
 python tools/test.py %test_args%
 if "%test%"=="test" goto jslint
+goto exit
+
+:run-test-ci
+echo running 'python tools/test.py -ptap --arch=%target_arch% simple'
+python tools/test.py -ptap --arch=%target_arch% simple | tee simple.tap
+echo running 'python tools/test.py -ptap --arch=%target_arch% message'
+python tools/test.py -ptap --arch=%target_arch% message | tee message.tap
+echo running 'python tools/test.py -ptap --arch=%target_arch% internet'
+python tools/test.py -ptap --arch=%target_arch% internet | tee internet.tap
 goto exit
 
 :create-msvs-files-failed
