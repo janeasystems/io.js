@@ -82,9 +82,17 @@ if defined noetw set noetw_arg=--without-etw& set noetw_msi_arg=/p:NoETW=1
 if defined noperfctr set noperfctr_arg=--without-perfctr& set noperfctr_msi_arg=/p:NoPerfCtr=1
 
 @rem Look for Visual Studio 2013
+echo Looking for Visual Studio 2013
 if not defined VS120COMNTOOLS goto vc-set-2012
 if not exist "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" goto vc-set-2012
-if defined msi if not exist "%WIX%\SDK\VS2013" goto vc-set-2012
+echo Found Visual Studio 2013
+if defined msi (
+  echo Looking for WiX installation for Visual Studio 2013...
+  if not exist "%WIX%\SDK\VS2013" (
+    echo Failed to find WiX install for Visual Studio 2013
+    goto vc-set-2012
+  )
+)
 call "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat"
 if not defined VCINSTALLDIR goto msbuild-not-found
 set GYP_MSVS_VERSION=2013
@@ -93,9 +101,17 @@ goto msbuild-found
 
 :vc-set-2012
 @rem Look for Visual Studio 2012
+echo Looking for Visual Studio 2012
 if not defined VS110COMNTOOLS goto vc-set-2010
 if not exist "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" goto vc-set-2010
-if defined msi if not exist "%WIX%\SDK\VS2012" goto vc-set-2010
+echo Found Visual Studio 2012
+if defined msi (
+  echo Looking for WiX installation for Visual Studio 2012...
+  if not exist "%WIX%\SDK\VS2012" (
+    echo Failed to find WiX install for Visual Studio 2012
+    goto vc-set-2010
+  )
+)
 call "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat"
 if not defined VCINSTALLDIR goto msbuild-not-found
 set GYP_MSVS_VERSION=2012
@@ -103,9 +119,17 @@ set PLATFORM_TOOLSET=v110
 goto msbuild-found
 
 :vc-set-2010
+echo Looking for Visual Studio 2010
 if not defined VS100COMNTOOLS goto msbuild-not-found
 if not exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" goto msbuild-not-found
-if defined msi if not exist "%WIX%\SDK\VS2010" goto wix-not-found
+echo Found Visual Studio 2010
+if defined msi (
+  echo Looking for WiX installation for Visual Studio 2010...
+  if not exist "%WIX%\SDK\VS2010" (
+    echo Failed to find WiX install for Visual Studio 2010
+    goto wix-not-found
+  )
+)
 call "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat"
 if not defined VCINSTALLDIR goto msbuild-not-found
 set GYP_MSVS_VERSION=2010
