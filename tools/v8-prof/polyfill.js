@@ -49,7 +49,7 @@ function read(fileName) {
 arguments = process.argv.slice(2);
 
 // Polyfill "readline()".
-var fd = fs.openSync(arguments[0], 'r');
+var fd = fs.openSync(arguments[arguments.length - 1], 'r');
 var buf = new Buffer(4096);
 var dec = new (require('string_decoder').StringDecoder)('utf-8');
 var line = '';

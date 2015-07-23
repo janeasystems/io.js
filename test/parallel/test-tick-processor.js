@@ -21,6 +21,7 @@ var processor = path.join(common.testDir, '..', 'tools', 'v8-prof',
     getScriptName());
 var out = cp.execSync(processor + ' ' + log, {encoding: 'utf8'});
 assert(out.match(/LazyCompile.*fib/));
+assert(out.match(/ContextifyScript/));
 
 function getScriptName() {
   switch (process.platform) {
