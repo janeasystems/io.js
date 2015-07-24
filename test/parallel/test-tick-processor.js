@@ -9,7 +9,10 @@ common.refreshTmpDir();
 
 process.chdir(common.tmpDir);
 cp.execFileSync(process.execPath, ['-prof', '-pe',
-    'function fib(n) { return n < 2 ? n : fib(n-1) + fib(n-2); }; fib(40);']);
+    'function fib(n) { require(\'vm\').runInDebugContext(\'Debug\');' +
+    'return n < 2 ? n : setImmediate(function() { fib(n-1) + fib(n-2);}); };' +
+    'setTimeout(function() { process.exit(0); }, 2000);' +
+    'fib(40);']);
 var matches = fs.readdirSync(common.tmpDir).filter(function(file) {
   return /^isolate-/.test(file);
 });
@@ -21,7 +24,7 @@ var processor = path.join(common.testDir, '..', 'tools', 'v8-prof',
     getScriptName());
 var out = cp.execSync(processor + ' ' + log, {encoding: 'utf8'});
 assert(out.match(/LazyCompile.*fib/));
-assert(out.match(/ContextifyScript/));
+assert(out.match(/RunInDebugContext/));
 
 function getScriptName() {
   switch (process.platform) {
