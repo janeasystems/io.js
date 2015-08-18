@@ -120,7 +120,7 @@ test-all-valgrind: test-build
 	$(PYTHON) tools/test.py --mode=debug,release --valgrind
 
 test-ci:
-	$(PYTHON) tools/test.py -p tap --logfile test.tap --mode=release message parallel sequential
+	$(PYTHON) tools/test.py -p tap --logfile test.tap --mode=release message internet parallel sequential
 
 test-release: test-build
 	$(PYTHON) tools/test.py --mode=release
