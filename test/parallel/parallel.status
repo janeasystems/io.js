@@ -5,14 +5,19 @@ prefix parallel
 # sample-test                       : PASS,FLAKY
 
 [true] # This section applies to all platforms
+test-timers-first-fire            : PASS,FLAKY
 
 [$system==win32]
+test-tls-ticket-cluster           : PASS,FLAKY
 
 [$system==linux]
+test-tick-processor               : PASS,FLAKY
+test-process-argv-0               : PASS,FLAKY
 
 [$system==macos]
 
 [$system==solaris] # Also applies to SmartOS
+test-debug-signal-cluster         : PASS,FLAKY
 
 [$system==freebsd]
-
+test-net-socket-local-address     : PASS,FLAKY
