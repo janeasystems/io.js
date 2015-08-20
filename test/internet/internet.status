@@ -5,14 +5,18 @@ prefix internet
 # sample-test                       : PASS,FLAKY
 
 [true] # This section applies to all platforms
+test-dns                          : PASS,FLAKY
 
 [$system==win32]
 
 [$system==linux]
+test-dgram-broadcast-multi-process : PASS,FLAKY
+test-dgram-multicast-multi-process : PASS,FLAKY
 
 [$system==macos]
 
 [$system==solaris] # Also applies to SmartOS
 
 [$system==freebsd]
-
+test-dgram-broadcast-multi-process : PASS,FLAKY
+test-dgram-multicast-multi-process : PASS,FLAKY
