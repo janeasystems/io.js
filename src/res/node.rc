@@ -1,5 +1,16 @@
 #include "winresrc.h"
-#include "node_version.h"
+
+// NODE_TAG is passed without quotes when rc.exe is run from msbuild
+#ifndef NODE_TAG
+# include "node_version.h"
+# define NODE_EXE_VERSION NODE_VERSION_STRING
+#else
+# include "node_version.h"
+# define NODE_EXE_VERSION NODE_STRINGIFY(NODE_MAJOR_VERSION) "." \
+                          NODE_STRINGIFY(NODE_MINOR_VERSION) "." \
+                          NODE_STRINGIFY(NODE_PATCH_VERSION)     \
+                          NODE_STRINGIFY(NODE_TAG)
+#endif
 
 
 // Application icon
@@ -32,8 +43,8 @@ BEGIN
             VALUE "CompanyName", "Node.js"
             VALUE "ProductName", "Node.js"
             VALUE "FileDescription", "Node.js: Server-side JavaScript"
-            VALUE "FileVersion", "NODE_VERSION_STRING"
-            VALUE "ProductVersion", "NODE_VERSION_STRING"
+            VALUE "FileVersion", NODE_EXE_VERSION
+            VALUE "ProductVersion", NODE_EXE_VERSION
             VALUE "OriginalFilename", "node.exe"
             VALUE "InternalName", "node"
             VALUE "LegalCopyright", "Copyright Node.js contributors. MIT license."
