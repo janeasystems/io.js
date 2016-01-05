@@ -130,7 +130,7 @@ test/addons/.buildstamp: $(ADDONS_BINDING_GYPS) | test/addons/.docbuildstamp
 # .buildstamp and .docbuildstamp are out of date and need a rebuild.
 # Just goes to show that recursive make really is harmful...
 # TODO(bnoordhuis) Force rebuild after gyp or node-gyp update.
-build-addons: $(NODE_EXE) test/addons/.buildstamp
+build-addons:
 
 test-gc: all test/gc/node_modules/weak/build/Release/weakref.node
 	$(PYTHON) tools/test.py --mode=release gc
