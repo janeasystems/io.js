@@ -186,7 +186,7 @@ test-all-valgrind: test-build
 	$(PYTHON) tools/test.py --mode=debug,release --valgrind
 
 CI_NATIVE_SUITES := addons
-CI_JS_SUITES := doctool known_issues message parallel pseudo-tty sequential
+CI_JS_SUITES := parallel
 
 # Build and test addons without building anything else
 test-ci-native: | test/addons/.buildstamp
@@ -200,10 +200,7 @@ test-ci-js:
 		--mode=release --flaky-tests=$(FLAKY_TESTS) \
 		$(TEST_CI_ARGS) $(CI_JS_SUITES)
 
-test-ci: | build-addons
-	$(PYTHON) tools/test.py $(PARALLEL_ARGS) -p tap --logfile test.tap \
-		--mode=release --flaky-tests=$(FLAKY_TESTS) \
-		$(TEST_CI_ARGS) $(CI_NATIVE_SUITES) $(CI_JS_SUITES)
+test-ci: test-ci-js
 
 test-release: test-build
 	$(PYTHON) tools/test.py --mode=release
