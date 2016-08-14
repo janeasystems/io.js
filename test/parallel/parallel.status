@@ -7,5 +7,17 @@ prefix parallel
 [true] # This section applies to all platforms
 
 test-tick-processor     : PASS,FAIL
+test-tick-processor-2     : PASS,FAIL
+test-tick-processor-3     : PASS,FAIL
+test-tick-processor-4     : PASS,FAIL
+test-tick-processor-5     : PASS,FAIL
 test-stdio-closed                        : PASS, FLAKY
+test-stdio-closed-2                        : PASS, FLAKY
+test-stdio-closed-3                        : PASS, FLAKY
+test-stdio-closed-4                        : PASS, FLAKY
+test-stdio-closed-5                        : PASS, FLAKY
 test-assert : FLAKY
+test-assert-2 : FLAKY
+test-assert-3 : FLAKY
+test-assert-4 : FLAKY
+test-assert-5 : FLAKY
