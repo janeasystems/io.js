@@ -126,6 +126,8 @@ if "%target%"=="Clean" rmdir /S /Q %~dp0deps\icu
 
 call :getnodeversion || exit /b 1
 
+if defined noprojgen if defined nobuild if defined nosign if not defined msi goto licensertf
+
 @rem Set environment for msbuild
 
 @rem Look for Visual Studio 2015
