@@ -416,18 +416,19 @@ static const int kOsrAstIdOffset = 2;
 static const int kEntryLength = 3;
 static const int kInitialLength = kEntryLength;
 
-int Context::SearchOptimizedCodeMapEntry(SharedFunctionInfo* shared,
-                                         BailoutId osr_ast_id) {
+int Context::SearchOSROptimizedCodeCacheEntry(SharedFunctionInfo* shared,
+                                              BailoutId osr_ast_id) {
   DisallowHeapAllocation no_gc;
   DCHECK(this->IsNativeContext());
-  if (!OptimizedCodeMapIsCleared()) {
-    FixedArray* optimized_code_map = this->osr_code_table();
-    int length = optimized_code_map->length();
+  DCHECK(!osr_ast_id.IsNone());
+  if (!OSROptimizedCodeCacheIsCleared()) {
+    FixedArray* osr_code_table = this->osr_code_table();
+    int length = osr_code_table->length();
     Smi* osr_ast_id_smi = Smi::FromInt(osr_ast_id.ToInt());
     for (int i = 0; i < length; i += kEntryLength) {
-      if (WeakCell::cast(optimized_code_map->get(i + kSharedOffset))->value() ==
+      if (WeakCell::cast(osr_code_table->get(i + kSharedOffset))->value() ==
               shared &&
-          optimized_code_map->get(i + kOsrAstIdOffset) == osr_ast_id_smi) {
+          osr_code_table->get(i + kOsrAstIdOffset) == osr_ast_id_smi) {
         return i;
       }
     }
@@ -435,10 +436,10 @@ int Context::SearchOptimizedCodeMapEntry(SharedFunctionInfo* shared,
   return -1;
 }
 
-Code* Context::SearchOptimizedCodeMap(SharedFunctionInfo* shared,
-                                      BailoutId osr_ast_id) {
+Code* Context::SearchOSROptimizedCodeCache(SharedFunctionInfo* shared,
+                                           BailoutId osr_ast_id) {
   DCHECK(this->IsNativeContext());
-  int entry = SearchOptimizedCodeMapEntry(shared, osr_ast_id);
+  int entry = SearchOSROptimizedCodeCacheEntry(shared, osr_ast_id);
   if (entry != -1) {
     FixedArray* code_map = osr_code_table();
     DCHECK_LE(entry + kEntryLength, code_map->length());
@@ -448,11 +449,13 @@ Code* Context::SearchOptimizedCodeMap(SharedFunctionInfo* shared,
   return nullptr;
 }
 
-void Context::AddToOptimizedCodeMap(Handle<Context> native_context,
-                                    Handle<SharedFunctionInfo> shared,
-                                    Handle<Code> code,
-                                    BailoutId osr_ast_id) {
+void Context::AddToOSROptimizedCodeCache(Handle<Context> native_context,
+                                         Handle<SharedFunctionInfo> shared,
+                                         Handle<Code> code,
+                                         BailoutId osr_ast_id) {
   DCHECK(native_context->IsNativeContext());
+  DCHECK(!osr_ast_id.IsNone());
+  DCHECK(code->kind() == Code::OPTIMIZED_FUNCTION);
   Isolate* isolate = native_context->GetIsolate();
   if (isolate->serializer_enabled()) return;
 
@@ -460,12 +463,13 @@ void Context::AddToOptimizedCodeMap(Handle<Context> native_context,
   Handle<FixedArray> new_code_map;
   int entry;
 
-  if (native_context->OptimizedCodeMapIsCleared()) {
+  if (native_context->OSROptimizedCodeCacheIsCleared()) {
     new_code_map = isolate->factory()->NewFixedArray(kInitialLength, TENURED);
     entry = 0;
   } else {
     Handle<FixedArray> old_code_map(native_context->osr_code_table(), isolate);
-    entry = native_context->SearchOptimizedCodeMapEntry(*shared, osr_ast_id);
+    entry =
+        native_context->SearchOSROptimizedCodeCacheEntry(*shared, osr_ast_id);
     if (entry >= 0) {
       // Just set the code of the entry.
       Handle<WeakCell> code_cell = isolate->factory()->NewWeakCell(code);
@@ -517,11 +521,11 @@ void Context::AddToOptimizedCodeMap(Handle<Context> native_context,
   }
 }
 
-void Context::EvictFromOptimizedCodeMap(Code* optimized_code,
-                                        const char* reason) {
+void Context::EvictFromOSROptimizedCodeCache(Code* optimized_code,
+                                             const char* reason) {
   DCHECK(IsNativeContext());
   DisallowHeapAllocation no_gc;
-  if (OptimizedCodeMapIsCleared()) return;
+  if (OSROptimizedCodeCacheIsCleared()) return;
 
   Heap* heap = GetHeap();
   FixedArray* code_map = osr_code_table();
@@ -556,12 +560,12 @@ void Context::EvictFromOptimizedCodeMap(Code* optimized_code,
     // Always trim even when array is cleared because of heap verifier.
     heap->RightTrimFixedArray(code_map, length - dst);
     if (code_map->length() == 0) {
-      ClearOptimizedCodeMap();
+      ClearOSROptimizedCodeCache();
     }
   }
 }
 
-void Context::ClearOptimizedCodeMap() {
+void Context::ClearOSROptimizedCodeCache() {
   DCHECK(IsNativeContext());
   FixedArray* empty_fixed_array = GetHeap()->empty_fixed_array();
   set_osr_code_table(empty_fixed_array);
@@ -569,8 +573,8 @@ void Context::ClearOptimizedCodeMap() {
 
 void Context::AddOptimizedFunction(JSFunction* function) {
   DCHECK(IsNativeContext());
-  Isolate* isolate = GetIsolate();
 #ifdef ENABLE_SLOW_DCHECKS
+  Isolate* isolate = GetIsolate();
   if (FLAG_enable_slow_asserts) {
     Object* element = get(OPTIMIZED_FUNCTIONS_LIST);
     while (!element->IsUndefined(isolate)) {
@@ -592,15 +596,7 @@ void Context::AddOptimizedFunction(JSFunction* function) {
   CHECK(found);
 #endif
 
-  // If the function link field is already used then the function was
-  // enqueued as a code flushing candidate and we remove it now.
-  if (!function->next_function_link()->IsUndefined(isolate)) {
-    CodeFlusher* flusher = GetHeap()->mark_compact_collector()->code_flusher();
-    flusher->EvictCandidate(function);
-  }
-
-  DCHECK(function->next_function_link()->IsUndefined(isolate));
-
+  DCHECK(function->next_function_link()->IsUndefined(GetIsolate()));
   function->set_next_function_link(get(OPTIMIZED_FUNCTIONS_LIST),
                                    UPDATE_WEAK_WRITE_BARRIER);
   set(OPTIMIZED_FUNCTIONS_LIST, function, UPDATE_WEAK_WRITE_BARRIER);

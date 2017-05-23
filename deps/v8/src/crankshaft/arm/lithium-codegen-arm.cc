@@ -4,6 +4,7 @@
 
 #include "src/crankshaft/arm/lithium-codegen-arm.h"
 
+#include "src/assembler-inl.h"
 #include "src/base/bits.h"
 #include "src/builtins/builtins-constructor.h"
 #include "src/code-factory.h"
@@ -12,6 +13,7 @@
 #include "src/crankshaft/hydrogen-osr.h"
 #include "src/ic/ic.h"
 #include "src/ic/stub-cache.h"
+#include "src/objects-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -165,8 +167,7 @@ void LCodeGen::DoPrologue(LPrologue* instr) {
       __ CallRuntime(Runtime::kNewScriptContext);
       deopt_mode = Safepoint::kLazyDeopt;
     } else {
-      if (slots <=
-          ConstructorBuiltinsAssembler::MaximumFunctionContextSlots()) {
+      if (slots <= ConstructorBuiltins::MaximumFunctionContextSlots()) {
         Callable callable = CodeFactory::FastNewFunctionContext(
             isolate(), info()->scope()->scope_type());
         __ mov(FastNewFunctionContextDescriptor::SlotsRegister(),
@@ -421,7 +422,6 @@ Register LCodeGen::EmitLoadRegister(LOperand* op, Register scratch) {
     return scratch;
   }
   UNREACHABLE();
-  return scratch;
 }
 
 
@@ -460,7 +460,6 @@ DwVfpRegister LCodeGen::EmitLoadDoubleRegister(LOperand* op,
     return dbl_scratch;
   }
   UNREACHABLE();
-  return dbl_scratch;
 }
 
 
@@ -533,7 +532,6 @@ Operand LCodeGen::ToOperand(LOperand* op) {
   }
   // Stack slots not implemented, use ToMemOperand instead.
   UNREACHABLE();
-  return Operand::Zero();
 }
 
 
@@ -2340,7 +2338,6 @@ static Condition ComputeCompareCondition(Token::Value op) {
       return ge;
     default:
       UNREACHABLE();
-      return kNoCondition;
   }
 }
 
@@ -2373,7 +2370,6 @@ static Condition BranchCondition(HHasInstanceTypeAndBranch* instr) {
   if (to == LAST_TYPE) return hs;
   if (from == FIRST_TYPE) return ls;
   UNREACHABLE();
-  return eq;
 }
 
 
@@ -2391,12 +2387,9 @@ void LCodeGen::DoHasInstanceTypeAndBranch(LHasInstanceTypeAndBranch* instr) {
 
 // Branches to a label or falls through with the answer in flags.  Trashes
 // the temp registers, but not the input.
-void LCodeGen::EmitClassOfTest(Label* is_true,
-                               Label* is_false,
-                               Handle<String>class_name,
-                               Register input,
-                               Register temp,
-                               Register temp2) {
+void LCodeGen::EmitClassOfTest(Label* is_true, Label* is_false,
+                               Handle<String> class_name, Register input,
+                               Register temp, Register temp2) {
   DCHECK(!input.is(temp));
   DCHECK(!input.is(temp2));
   DCHECK(!temp.is(temp2));
@@ -2426,8 +2419,8 @@ void LCodeGen::EmitClassOfTest(Label* is_true,
   // temp now contains the constructor function. Grab the
   // instance class name from there.
   __ ldr(temp, FieldMemOperand(temp, JSFunction::kSharedFunctionInfoOffset));
-  __ ldr(temp, FieldMemOperand(temp,
-                               SharedFunctionInfo::kInstanceClassNameOffset));
+  __ ldr(temp,
+         FieldMemOperand(temp, SharedFunctionInfo::kInstanceClassNameOffset));
   // The class name we are testing against is internalized since it's a literal.
   // The name in the constructor is internalized because of the way the context
   // is booted.  This routine isn't expected to work for random API-created
@@ -2438,7 +2431,6 @@ void LCodeGen::EmitClassOfTest(Label* is_true,
   // End with the answer in flags.
 }
 
-
 void LCodeGen::DoClassOfTestAndBranch(LClassOfTestAndBranch* instr) {
   Register input = ToRegister(instr->value());
   Register temp = scratch0();
@@ -2446,11 +2438,10 @@ void LCodeGen::DoClassOfTestAndBranch(LClassOfTestAndBranch* instr) {
   Handle<String> class_name = instr->hydrogen()->class_name();
 
   EmitClassOfTest(instr->TrueLabel(chunk_), instr->FalseLabel(chunk_),
-      class_name, input, temp, temp2);
+                  class_name, input, temp, temp2);
 
   EmitBranch(instr, eq);
 }
-
 
 void LCodeGen::DoCmpMapAndBranch(LCmpMapAndBranch* instr) {
   Register reg = ToRegister(instr->value());
@@ -5297,7 +5288,7 @@ void LCodeGen::DoForInCacheArray(LForInCacheArray* instr) {
   __ bind(&load_cache);
   __ LoadInstanceDescriptors(map, result);
   __ ldr(result,
-         FieldMemOperand(result, DescriptorArray::kEnumCacheOffset));
+         FieldMemOperand(result, DescriptorArray::kEnumCacheBridgeOffset));
   __ ldr(result,
          FieldMemOperand(result, FixedArray::SizeFor(instr->idx())));
   __ cmp(result, Operand::Zero());

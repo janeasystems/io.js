@@ -23,6 +23,15 @@ FeedbackSlot FeedbackVectorSpecBase<Derived>::AddSlot(FeedbackSlotKind kind) {
   return FeedbackSlot(slot);
 }
 
+template <typename Derived>
+FeedbackSlot FeedbackVectorSpecBase<Derived>::AddTypeProfileSlot() {
+  DCHECK(FLAG_type_profile);
+  FeedbackSlot slot = AddSlot(FeedbackSlotKind::kTypeProfile);
+  CHECK_EQ(FeedbackVectorSpec::kTypeProfileSlotIndex,
+           FeedbackVector::GetIndex(slot));
+  return slot;
+}
+
 // static
 FeedbackMetadata* FeedbackMetadata::cast(Object* obj) {
   DCHECK(obj->IsFeedbackMetadata());
@@ -54,6 +63,7 @@ int FeedbackMetadata::GetSlotSize(FeedbackSlotKind kind) {
     case FeedbackSlotKind::kToBoolean:
     case FeedbackSlotKind::kLiteral:
     case FeedbackSlotKind::kCreateClosure:
+    case FeedbackSlotKind::kTypeProfile:
       return 1;
 
     case FeedbackSlotKind::kCall:
@@ -64,6 +74,8 @@ int FeedbackMetadata::GetSlotSize(FeedbackSlotKind kind) {
     case FeedbackSlotKind::kStoreNamedSloppy:
     case FeedbackSlotKind::kStoreNamedStrict:
     case FeedbackSlotKind::kStoreOwnNamed:
+    case FeedbackSlotKind::kStoreGlobalSloppy:
+    case FeedbackSlotKind::kStoreGlobalStrict:
     case FeedbackSlotKind::kStoreKeyedSloppy:
     case FeedbackSlotKind::kStoreKeyedStrict:
     case FeedbackSlotKind::kStoreDataPropertyInLiteral:
@@ -101,6 +113,15 @@ void FeedbackVector::clear_invocation_count() {
   set(kInvocationCountIndex, Smi::kZero);
 }
 
+Code* FeedbackVector::optimized_code() const {
+  WeakCell* cell = WeakCell::cast(get(kOptimizedCodeIndex));
+  return cell->cleared() ? nullptr : Code::cast(cell->value());
+}
+
+bool FeedbackVector::has_optimized_code() const {
+  return !WeakCell::cast(get(kOptimizedCodeIndex))->cleared();
+}
+
 // Conversion from an integer index to either a slot or an ic slot.
 // static
 FeedbackSlot FeedbackVector::ToSlot(int index) {
@@ -134,7 +155,6 @@ BinaryOperationHint BinaryOperationHintFromFeedback(int type_feedback) {
       return BinaryOperationHint::kAny;
   }
   UNREACHABLE();
-  return BinaryOperationHint::kNone;
 }
 
 // Helper function to transform the feedback to CompareOperationHint.
@@ -152,13 +172,14 @@ CompareOperationHint CompareOperationHintFromFeedback(int type_feedback) {
       return CompareOperationHint::kInternalizedString;
     case CompareOperationFeedback::kString:
       return CompareOperationHint::kString;
+    case CompareOperationFeedback::kSymbol:
+      return CompareOperationHint::kSymbol;
     case CompareOperationFeedback::kReceiver:
       return CompareOperationHint::kReceiver;
     default:
       return CompareOperationHint::kAny;
   }
   UNREACHABLE();
-  return CompareOperationHint::kNone;
 }
 
 void FeedbackVector::ComputeCounts(int* with_type_info, int* generic,
@@ -184,9 +205,12 @@ void FeedbackVector::ComputeCounts(int* with_type_info, int* generic,
       case FeedbackSlotKind::kStoreNamedSloppy:
       case FeedbackSlotKind::kStoreNamedStrict:
       case FeedbackSlotKind::kStoreOwnNamed:
+      case FeedbackSlotKind::kStoreGlobalSloppy:
+      case FeedbackSlotKind::kStoreGlobalStrict:
       case FeedbackSlotKind::kStoreKeyedSloppy:
       case FeedbackSlotKind::kStoreKeyedStrict:
-      case FeedbackSlotKind::kStoreDataPropertyInLiteral: {
+      case FeedbackSlotKind::kStoreDataPropertyInLiteral:
+      case FeedbackSlotKind::kTypeProfile: {
         if (obj->IsWeakCell() || obj->IsFixedArray() || obj->IsString()) {
           with++;
         } else if (obj == megamorphic_sentinel) {

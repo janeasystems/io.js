@@ -53,7 +53,7 @@ class V8_EXPORT_PRIVATE CompilationInfo final {
     kLoopPeelingEnabled = 1 << 16,
   };
 
-  CompilationInfo(Zone* zone, ParseInfo* parse_info,
+  CompilationInfo(Zone* zone, ParseInfo* parse_info, Isolate* isolate,
                   Handle<JSFunction> closure);
   CompilationInfo(Vector<const char> debug_name, Isolate* isolate, Zone* zone,
                   Code::Flags code_flags);
@@ -181,8 +181,8 @@ class V8_EXPORT_PRIVATE CompilationInfo final {
 
   bool GeneratePreagedPrologue() const {
     // Generate a pre-aged prologue if we are optimizing for size, which
-    // will make code flushing more aggressive. Only apply to Code::FUNCTION,
-    // since StaticMarkingVisitor::IsFlushable only flushes proper functions.
+    // will make code old more aggressive. Only apply to Code::FUNCTION,
+    // since only functions are aged in the compilation cache.
     return FLAG_optimize_for_size && FLAG_age_code && !is_debug() &&
            output_code_kind() == Code::FUNCTION;
   }

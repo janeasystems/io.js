@@ -187,8 +187,7 @@ void LCodeGen::DoPrologue(LPrologue* instr) {
       __ CallRuntime(Runtime::kNewScriptContext);
       deopt_mode = Safepoint::kLazyDeopt;
     } else {
-      if (slots <=
-          ConstructorBuiltinsAssembler::MaximumFunctionContextSlots()) {
+      if (slots <= ConstructorBuiltins::MaximumFunctionContextSlots()) {
         Callable callable = CodeFactory::FastNewFunctionContext(
             isolate(), info()->scope()->scope_type());
         __ mov(FastNewFunctionContextDescriptor::SlotsRegister(),
@@ -429,7 +428,6 @@ Register LCodeGen::EmitLoadRegister(LOperand* op, Register scratch) {
     return scratch;
   }
   UNREACHABLE();
-  return scratch;
 }
 
 
@@ -521,7 +519,6 @@ Operand LCodeGen::ToOperand(LOperand* op) {
   }
   // Stack slots not implemented, use ToMemOperand instead.
   UNREACHABLE();
-  return Operand::Zero();
 }
 
 
@@ -2440,7 +2437,6 @@ static Condition ComputeCompareCondition(Token::Value op) {
       return ge;
     default:
       UNREACHABLE();
-      return kNoCondition;
   }
 }
 
@@ -2473,7 +2469,6 @@ static Condition BranchCondition(HHasInstanceTypeAndBranch* instr) {
   if (to == LAST_TYPE) return ge;
   if (from == FIRST_TYPE) return le;
   UNREACHABLE();
-  return eq;
 }
 
 
@@ -2535,7 +2530,6 @@ void LCodeGen::EmitClassOfTest(Label* is_true, Label* is_false,
   // End with the answer in flags.
 }
 
-
 void LCodeGen::DoClassOfTestAndBranch(LClassOfTestAndBranch* instr) {
   Register input = ToRegister(instr->value());
   Register temp = scratch0();
@@ -2547,7 +2541,6 @@ void LCodeGen::DoClassOfTestAndBranch(LClassOfTestAndBranch* instr) {
 
   EmitBranch(instr, eq);
 }
-
 
 void LCodeGen::DoCmpMapAndBranch(LCmpMapAndBranch* instr) {
   Register reg = ToRegister(instr->value());
@@ -3739,7 +3732,7 @@ void LCodeGen::DoMathLog(LMathLog* instr) {
 void LCodeGen::DoMathClz32(LMathClz32* instr) {
   Register input = ToRegister(instr->value());
   Register result = ToRegister(instr->result());
-  __ cntlzw_(result, input);
+  __ cntlzw(result, input);
 }
 
 void LCodeGen::PrepareForTailCall(const ParameterCount& actual,
@@ -5596,7 +5589,8 @@ void LCodeGen::DoForInCacheArray(LForInCacheArray* instr) {
 
   __ bind(&load_cache);
   __ LoadInstanceDescriptors(map, result);
-  __ LoadP(result, FieldMemOperand(result, DescriptorArray::kEnumCacheOffset));
+  __ LoadP(result,
+           FieldMemOperand(result, DescriptorArray::kEnumCacheBridgeOffset));
   __ LoadP(result, FieldMemOperand(result, FixedArray::SizeFor(instr->idx())));
   __ cmpi(result, Operand::Zero());
   DeoptimizeIf(eq, instr, DeoptimizeReason::kNoCache);

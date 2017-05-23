@@ -903,7 +903,6 @@ bool HInstruction::CanDeoptimize() {
       return true;
   }
   UNREACHABLE();
-  return true;
 }
 
 
@@ -1026,13 +1025,11 @@ std::ostream& HCallRuntime::PrintDataTo(std::ostream& os) const {  // NOLINT
   return os << "#" << argument_count();
 }
 
-
 std::ostream& HClassOfTestAndBranch::PrintDataTo(
     std::ostream& os) const {  // NOLINT
   return os << "class_of_test(" << NameOf(value()) << ", \""
             << class_name()->ToCString().get() << "\")";
 }
-
 
 std::ostream& HWrapReceiver::PrintDataTo(std::ostream& os) const {  // NOLINT
   return os << NameOf(receiver()) << " " << NameOf(function());
@@ -1153,7 +1150,6 @@ const char* HUnaryMathOperation::OpName() const {
       return "clz32";
     default:
       UNREACHABLE();
-      return NULL;
   }
 }
 
@@ -1652,7 +1648,6 @@ const char* HCheckInstanceType::GetCheckName() const {
     case IS_INTERNALIZED_STRING: return "internalized_string";
   }
   UNREACHABLE();
-  return "";
 }
 
 

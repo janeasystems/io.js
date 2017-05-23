@@ -58,6 +58,7 @@ class V8_EXPORT_PRIVATE EffectControlLinearizer {
   Node* LowerCheckNumber(Node* node, Node* frame_state);
   Node* LowerCheckReceiver(Node* node, Node* frame_state);
   Node* LowerCheckString(Node* node, Node* frame_state);
+  Node* LowerCheckSymbol(Node* node, Node* frame_state);
   Node* LowerCheckIf(Node* node, Node* frame_state);
   Node* LowerCheckedInt32Add(Node* node, Node* frame_state);
   Node* LowerCheckedInt32Sub(Node* node, Node* frame_state);
@@ -77,17 +78,21 @@ class V8_EXPORT_PRIVATE EffectControlLinearizer {
   Node* LowerCheckedTaggedToTaggedPointer(Node* node, Node* frame_state);
   Node* LowerChangeTaggedToFloat64(Node* node);
   Node* LowerTruncateTaggedToBit(Node* node);
+  Node* LowerTruncateTaggedPointerToBit(Node* node);
   Node* LowerTruncateTaggedToFloat64(Node* node);
   Node* LowerTruncateTaggedToWord32(Node* node);
   Node* LowerCheckedTruncateTaggedToWord32(Node* node, Node* frame_state);
   Node* LowerObjectIsDetectableCallable(Node* node);
+  Node* LowerObjectIsNaN(Node* node);
   Node* LowerObjectIsNonCallable(Node* node);
   Node* LowerObjectIsNumber(Node* node);
   Node* LowerObjectIsReceiver(Node* node);
   Node* LowerObjectIsSmi(Node* node);
   Node* LowerObjectIsString(Node* node);
+  Node* LowerObjectIsSymbol(Node* node);
   Node* LowerObjectIsUndetectable(Node* node);
-  Node* LowerNewRestParameterElements(Node* node);
+  Node* LowerArgumentsFrame(Node* node);
+  Node* LowerArgumentsLength(Node* node);
   Node* LowerNewUnmappedArgumentsElements(Node* node);
   Node* LowerArrayBufferWasNeutered(Node* node);
   Node* LowerStringCharAt(Node* node);
@@ -151,6 +156,7 @@ class V8_EXPORT_PRIVATE EffectControlLinearizer {
   RegionObservability region_observability_ = RegionObservability::kObservable;
   SourcePositionTable* source_positions_;
   GraphAssembler graph_assembler_;
+  Node* frame_state_zapper_;  // For tracking down compiler::Node::New crashes.
 };
 
 }  // namespace compiler
