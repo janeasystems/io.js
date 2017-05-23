@@ -663,6 +663,7 @@ PKGDIR=out/dist-osx
 
 release-only:
 	@if [ "$(DISTTYPE)" != "nightly" ] && [ "$(DISTTYPE)" != "next-nightly" ] && \
+		[ "$(shell echo $(CUSTOMTAG) | cut -c-4)" != "test" ] && \
 		`grep -q REPLACEME doc/api/*.md`; then \
 		echo 'Please update REPLACEME in Added: tags in doc/api/*.md (See doc/releases.md)' ; \
 		exit 1 ; \
