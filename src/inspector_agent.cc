@@ -565,6 +565,8 @@ void Agent::Connect(InspectorSessionDelegate* delegate) {
 
 void Agent::WaitForDisconnect() {
   CHECK_NE(client_, nullptr);
+  // TODO(addaleax): Maybe this should use an at-exit hook for the Environment
+  // or something similar?
   client_->contextDestroyed(parent_env_->context());
   if (io_ != nullptr) {
     io_->WaitForDisconnect();

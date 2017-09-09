@@ -39,6 +39,12 @@ inline BaseObject::BaseObject(Environment* env, v8::Local<v8::Object> handle)
   // nullptr in case it's accessed by the user before construction is complete.
   if (handle->InternalFieldCount() > 0)
     handle->SetAlignedPointerInInternalField(0, nullptr);
+  env_->AddCleanupHook(DeleteMe, static_cast<void*>(this));
+}
+
+
+inline BaseObject::~BaseObject() {
+  env_->RemoveCleanupHook(DeleteMe, static_cast<void*>(this));
 }
 
 
@@ -54,6 +60,12 @@ inline v8::Local<v8::Object> BaseObject::object() {
 
 inline Environment* BaseObject::env() const {
   return env_;
+}
+
+
+inline void BaseObject::DeleteMe(void* data) {
+  BaseObject* self = static_cast<BaseObject*>(data);
+  delete self;
 }
 
 

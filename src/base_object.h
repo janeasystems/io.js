@@ -34,7 +34,7 @@ class Environment;
 class BaseObject {
  public:
   inline BaseObject(Environment* env, v8::Local<v8::Object> handle);
-  virtual ~BaseObject() = default;
+  virtual ~BaseObject();
 
   // Returns the wrapped object.  Returns an empty handle when
   // persistent.IsEmpty() is true.
@@ -60,6 +60,7 @@ class BaseObject {
   template <typename Type>
   static inline void WeakCallback(
       const v8::WeakCallbackInfo<Type>& data);
+  static inline void DeleteMe(void* data);
 
   // persistent_handle_ needs to be at a fixed offset from the start of the
   // class because it is used by src/node_postmortem_metadata.cc to calculate
