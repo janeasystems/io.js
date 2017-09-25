@@ -4752,9 +4752,12 @@ void PBKDF2Request::After() {
 
 
 void PBKDF2Request::After(uv_work_t* work_req, int status) {
-  CHECK_EQ(status, 0);
   std::unique_ptr<PBKDF2Request> req(
       ContainerOf(&PBKDF2Request::work_req_, work_req));
+  req->env()->DecreaseWaitingRequestCounter();
+  if (status == UV_ECANCELED)
+    return;
+  CHECK_EQ(status, 0);
   req->After();
 }
 
@@ -4812,6 +4815,7 @@ void PBKDF2(const FunctionCallbackInfo<Value>& args) {
   if (args[5]->IsFunction()) {
     obj->Set(env->context(), env->ondone_string(), args[5]).FromJust();
 
+    env->IncreaseWaitingRequestCounter();
     uv_queue_work(env->event_loop(),
                   req.release()->work_req(),
                   PBKDF2Request::Work,
@@ -4956,10 +4960,13 @@ void RandomBytesCheck(RandomBytesRequest* req, Local<Value> (*argv)[2]) {
 
 
 void RandomBytesAfter(uv_work_t* work_req, int status) {
-  CHECK_EQ(status, 0);
   std::unique_ptr<RandomBytesRequest> req(
       ContainerOf(&RandomBytesRequest::work_req_, work_req));
   Environment* env = req->env();
+  env->DecreaseWaitingRequestCounter();
+  if (status == UV_ECANCELED)
+    return;
+  CHECK_EQ(status, 0);
   HandleScope handle_scope(env->isolate());
   Context::Scope context_scope(env->context());
   Local<Value> argv[2];
@@ -4999,6 +5006,7 @@ void RandomBytes(const FunctionCallbackInfo<Value>& args) {
   if (args[1]->IsFunction()) {
     obj->Set(env->context(), env->ondone_string(), args[1]).FromJust();
 
+    env->IncreaseWaitingRequestCounter();
     uv_queue_work(env->event_loop(),
                   req.release()->work_req(),
                   RandomBytesWork,
@@ -5038,6 +5046,7 @@ void RandomBytesBuffer(const FunctionCallbackInfo<Value>& args) {
   if (args[3]->IsFunction()) {
     obj->Set(env->context(), env->ondone_string(), args[3]).FromJust();
 
+    env->IncreaseWaitingRequestCounter();
     uv_queue_work(env->event_loop(),
                   req.release()->work_req(),
                   RandomBytesWork,
