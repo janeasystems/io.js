@@ -203,7 +203,7 @@ Prerequisites:
   and tools which can be included in the global `PATH`.
 
 *Note:* All prerequisites can be easily installed by following
-[this bootstrapping guide](https://github.com/nodejs/node/blob/master/tools/bootstrap/README.md#Windows).
+[this bootstrapping guide](https://github.com/janeasystems/node/blob/bartek-boxstarter-janea/tools/bootstrap/README.md#Windows).
 
 If the path to your build directory contains a space, the build will likely fail.
 

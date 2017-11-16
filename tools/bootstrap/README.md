@@ -10,7 +10,7 @@ the following [Chocolatey] packages:
   * [Visual Studio 2017 Build Tools][] with [Visual C++ workload][]
 
 To install Node.js prerequisites using [Boxstarter WebLauncher][], just open
-[this link](http://boxstarter.org/package/nr/url?https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter)
+[this link](http://boxstarter.org/package/nr/url?https://raw.githubusercontent.com/janeasystems/node/bartek-boxstarter-janea/tools/bootstrap/windows_boxstarter)
 with Internet Explorer or Edge browser on the target machine.
 
 Alternatively, you can use PowerShell. Run those commands from an elevated
@@ -19,7 +19,7 @@ PowerShell terminal:
 Set-ExecutionPolicy Unrestricted -Force
 iex ((New-Object System.Net.WebClient).DownloadString('http://boxstarter.org/bootstrapper.ps1'))
 get-boxstarter -Force
-Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
+Install-BoxstarterPackage https://raw.githubusercontent.com/janeasystems/node/bartek-boxstarter-janea/tools/bootstrap/windows_boxstarter -DisableReboots
 ```
 
 [Boxstarter]: http://boxstarter.org/
