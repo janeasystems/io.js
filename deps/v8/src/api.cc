@@ -7714,6 +7714,18 @@ MaybeLocal<Proxy> Proxy::New(Local<Context> context, Local<Object> local_target,
   RETURN_ESCAPED(result);
 }
 
+WasmCompiledModule::TransferrableModule::TransferrableModule(
+  TransferrableModule&& src)
+    : compiled_code(std::move(src.compiled_code))
+    , wire_bytes(std::move(src.wire_bytes)) {}
+
+WasmCompiledModule::TransferrableModule&
+WasmCompiledModule::TransferrableModule::operator=(TransferrableModule&& src) {
+  compiled_code = std::move(src.compiled_code);
+  wire_bytes = std::move(src.wire_bytes);
+  return *this;
+}
+
 Local<String> WasmCompiledModule::GetWasmWireBytes() {
   i::Handle<i::WasmModuleObject> obj =
       i::Handle<i::WasmModuleObject>::cast(Utils::OpenHandle(this));
@@ -7893,6 +7905,21 @@ MaybeLocal<WasmCompiledModule> WasmModuleObjectBuilder::Finish() {
   }
   return WasmCompiledModule::Compile(isolate_, wire_bytes.get(), total_size_);
 }
+
+WasmModuleObjectBuilder::WasmModuleObjectBuilder(WasmModuleObjectBuilder&& src)
+  : received_buffers_(std::move(src.received_buffers_))
+  , total_size_(src.total_size_) {
+    src.total_size_ = 0;
+}
+
+WasmModuleObjectBuilder& WasmModuleObjectBuilder::operator=(
+  WasmModuleObjectBuilder&& src) {
+    received_buffers_ = std::move(src.received_buffers_);
+    total_size_ = src.total_size_;
+    src.total_size_ = 0;
+    return *this;
+}
+
 
 // static
 v8::ArrayBuffer::Allocator* v8::ArrayBuffer::Allocator::NewDefaultAllocator() {
