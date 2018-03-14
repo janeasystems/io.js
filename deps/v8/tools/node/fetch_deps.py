@@ -42,7 +42,7 @@ GCLIENT_SOLUTION = [
       "v8/tools/swarming_client"              : None,
     },
     "custom_vars": {
-      "build_for_node" : True,
+#      "build_for_node" : True,
     },
   },
 ]
