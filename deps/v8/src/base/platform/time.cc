@@ -462,10 +462,10 @@ TimeTicks TimeTicks::HighResolutionNow() {
   static bool verified_high_resolution_available = false;
   if (!verified_high_resolution_available) {
     if (!TimeTicks::IsHighResolution()) {
-      OS::PrintError(
+      /*OS::PrintError(
           "\n\n"
           "WARNING: High-resolution TimeTicks are not available on this system."
-          "\n\n");
+          "\n\n");*/
     }
     verified_high_resolution_available = true;
   }
