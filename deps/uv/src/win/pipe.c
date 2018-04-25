@@ -735,6 +735,11 @@ void uv__pipe_unpause_read(uv_pipe_t* handle) {
 
 
 void uv__pipe_stop_read(uv_pipe_t* handle) {
+  if (handle->flags & UV_HANDLE_READING) {
+      if (handle->read_req.type == UV_READ) {
+          pCancelIoEx(handle->handle, &handle->read_req.u.io.overlapped);
+      }
+  }
   handle->flags &= ~UV_HANDLE_READING;
   uv__pipe_pause_read((uv_pipe_t*)handle);
   uv__pipe_unpause_read((uv_pipe_t*)handle);
