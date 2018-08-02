@@ -521,6 +521,11 @@
           'defines': [ 'HAVE_INSPECTOR=0' ]
         }],
         [ 'OS=="win"', {
+          'msvs_precompiled_header': '../tools/msvs/pch/pch_node_lib.h',
+          'msvs_precompiled_source': 'tools/msvs/pch/pch_node_lib.cc',
+          'sources': [
+            'tools/msvs/pch/pch_node_lib.cc',
+          ],
           'conditions': [
             [ 'node_intermediate_lib_type!="static_library"', {
               'sources': [
