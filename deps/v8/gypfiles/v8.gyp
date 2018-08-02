@@ -275,6 +275,17 @@
             '../src/builtins/builtins-intl-gen.cc',
           ],
         }],
+        ['OS=="win"', {
+          'conditions': [
+            ['node_use_pch=="true"', {
+              'msvs_precompiled_header': '../../tools/msvs/pch/pch_v8_initializers.h',
+              'msvs_precompiled_source': '../../../tools/msvs/pch/pch_v8_initializers.cc',
+              'sources': [
+                '../../../tools/msvs/pch/pch_v8_initializers.cc',
+              ],
+            }],
+          ],
+        }],
       ],
     },
     {
