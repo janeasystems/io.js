@@ -11,6 +11,7 @@
       '<(icu_path)/source/tools/genrb/derb.c',
       '<(icu_path)/source/tools/genrb/derb.cpp'
     ],
+    'node_use_pch%': 'false',
   },
   'includes': [ '../../icu_config.gypi' ],
   'targets': [
@@ -181,7 +182,14 @@
               '<(icu_path)/source/i18n/uspoof_wsconf.cpp',
               '<(icu_path)/source/i18n/uspoof_wsconf.h',
             ]}],
-            ],
+            ['node_use_pch=="true"', {
+              'msvs_precompiled_header': '../../../../tools/msvs/pch/pch_icu.h',
+              'msvs_precompiled_source': '../msvs/pch/pch_icu.cc',
+              'sources': [
+                '../msvs/pch/pch_icu.cc',
+              ],
+            }],
+          ],
           'include_dirs': [
             '<(icu_path)/source/i18n',
           ],
@@ -438,6 +446,13 @@
         [ 'OS == "solaris"', { 'defines': [
           '_XOPEN_SOURCE_EXTENDED=0',
         ]}],
+        ['node_use_pch=="true"', {
+          'msvs_precompiled_header': '../../../../tools/msvs/pch/pch_icu.h',
+          'msvs_precompiled_source': '../msvs/pch/pch_icu.cc',
+          'sources': [
+            '../msvs/pch/pch_icu.cc',
+          ],
+        }],
       ],
       'include_dirs': [
         '<(icu_path)/source/common',
@@ -492,6 +507,13 @@
       ],
       'cflags_c': ['-std=c99'],
       'conditions': [
+        ['node_use_pch=="true"', {
+          'msvs_precompiled_header': '../../../../tools/msvs/pch/pch_icu.h',
+          'msvs_precompiled_source': '../msvs/pch/pch_icu.cc',
+          'sources': [
+            '../msvs/pch/pch_icu.cc',
+          ],
+        }],
         ['OS == "solaris"', {
           'defines': [ '_XOPEN_SOURCE_EXTENDED=0' ]
         }]
