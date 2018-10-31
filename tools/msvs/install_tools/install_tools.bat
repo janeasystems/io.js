@@ -28,7 +28,7 @@ echo Your computer may REBOOT SEVERAL TIMES WITHOUT FURTHER WARNING.
 echo Please type YES followed by enter to confirm that you have saved all your
 set /p "ACCEPT_PROMPT=work and closed all open programs: "
 if /i not "%ACCEPT_PROMPT%"=="yes" (
-  echo Please type YES or close the window to exit.
+  echo Please type YES to confirm, or close the window to exit.
   goto acceptretry
 )
 
