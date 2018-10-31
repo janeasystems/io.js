@@ -1,5 +1,7 @@
 @echo off
 
+setlocal
+
 cls
 echo ====================================================
 echo Tools for Node.js Native Modules Installation Script
@@ -20,8 +22,15 @@ echo.
 echo You can close this window to stop now. This script can be invoked from the
 echo Start menu. Detailed instructions to install these tools manually are
 echo available at https://github.com/nodejs/node-gyp#on-windows
+:acceptretry
 echo.
-pause
+echo Your computer may REBOOT SEVERAL TIMES WITHOUT FURTHER WARNING.
+echo Please type YES followed by enter to confirm that you have saved all your
+set /p "ACCEPT_PROMPT=work and closed all open programs: "
+if /i not "%ACCEPT_PROMPT%"=="yes" (
+  echo Please type YES or close the window to exit.
+  goto acceptretry
+)
 
 cls
 REM Adapted from https://github.com/Microsoft/windows-dev-box-setup-scripts/blob/79bbe5bdc4867088b3e074f9610932f8e4e192c2/README.md#legal
