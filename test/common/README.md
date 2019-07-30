@@ -909,7 +909,7 @@ Deletes and recreates the testing temporary directory.
 The first time `refresh()` runs,  it adds a listener to process `'exit'` that
 cleans the temporary directory. Thus, every file under `tmpdir.path` needs to
 be closed before the test completes. A good way to do this is to add a
-listener to process `'beforeExit'`. If a file needs to be left open until Node
+listener to process `'beforeExit'`. If a file needs to be left open until Node.js
 completes, use a child process and call `refresh` only in the parent.
 
 ## WPT Module
