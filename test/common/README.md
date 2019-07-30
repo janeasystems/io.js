@@ -906,7 +906,7 @@ The realpath of the testing temporary directory.
 
 Deletes and recreates the testing temporary directory.
 
-The first time refresh is run it adds a listener to process `'exit'` that
+The first time `refresh()` runs,  it adds a listener to process `'exit'` that
 cleans the temporary directory. Thus, every file under `tmpdir.path` needs to
 be closed before the test completes. A good way to do this is to add a
 listener to process `'beforeExit'`. If a file needs to be left open until Node
