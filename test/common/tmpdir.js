@@ -20,6 +20,8 @@ function rimrafSync(pathname, { spawn = true } = {}) {
     }
   })();
 
+  console.error('rimrafSync', pathname.toString());
+
   // If (!st) then nothing to do.
   if (!st) {
     return;
@@ -37,10 +39,13 @@ function rimrafSync(pathname, { spawn = true } = {}) {
   }
 
   try {
-    if (st.isDirectory())
+    if (st.isDirectory()) {
+      console.error('rmdirSync', pathname.toString());
       rmdirSync(pathname, null);
-    else
+    } else {
+      console.error('fs.unlinkSync', pathname.toString());
       fs.unlinkSync(pathname);
+    }
   } catch (e) {
     debug(e);
     switch (e.code) {
@@ -76,6 +81,7 @@ function rmdirSync(p, originalEr) {
     if (e.code === 'ENOTEMPTY' || e.code === 'EEXIST' || e.code === 'EPERM') {
       const enc = process.platform === 'linux' ? 'buffer' : 'utf8';
       fs.readdirSync(p, enc).forEach((f) => {
+        console.error('REMOVING ENTRY', f.toString());
         if (f instanceof Buffer) {
           const buf = Buffer.concat([Buffer.from(p), Buffer.from(path.sep), f]);
           rimrafSync(buf);
@@ -109,6 +115,7 @@ function refresh(opts = {}) {
     // Clean only when a test uses refresh. This allows for child processes to
     // use the tmpdir and only the parent will clean on exit.
     process.on('exit', () => {
+      console.error('on exit');
       try {
         // Change dit to avoid possible EBUSY
         if (isMainThread)
