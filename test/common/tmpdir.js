@@ -81,6 +81,8 @@ function rmdirSync(p, originalEr) {
     if (e.code === 'ENOTEMPTY' || e.code === 'EEXIST' || e.code === 'EPERM') {
       const enc = process.platform === 'linux' ? 'buffer' : 'utf8';
       fs.readdirSync(p, enc).forEach((f) => {
+        if (handleNfsFile(f))
+          return;
         console.error('REMOVING ENTRY', f.toString());
         if (f instanceof Buffer) {
           const buf = Buffer.concat([Buffer.from(p), Buffer.from(path.sep), f]);
@@ -90,21 +92,8 @@ function rmdirSync(p, originalEr) {
         }
       });
       fs.readdirSync(p, enc).forEach((f) => {
-        if (f.toString().startsWith('.nfs')) {
-          if (!fs.existsSync(tmpPathNfs))
-            fs.mkdirSync(tmpPathNfs);
-          let src, dst;
-          if (f instanceof Buffer) {
-            src = Buffer.concat(
-              [Buffer.from(p), Buffer.from(path.sep), f]);
-            dst = Buffer.concat(
-              [Buffer.from(tmpPathNfs), Buffer.from(path.sep), f]);
-          } else {
-            src = path.join(p, f);
-            dst = path.join(tmpPathNfs, f);
-          }
-          fs.renameSync(src, dst);
-        }
+        // Nfs files can be created by the removal process above.
+        handleNfsFile(f);
       });
       fs.rmdirSync(p);
       return;
@@ -146,6 +135,28 @@ function refresh(opts = {}) {
       }
     });
   }
+}
+
+function handleNfsFile(filename) {
+  if (!filename.toString().startsWith('.nfs'))
+    return false;
+
+  if (!fs.existsSync(tmpPathNfs))
+    fs.mkdirSync(tmpPathNfs);
+
+  let src, dst;
+  if (f instanceof Buffer) {
+    src = Buffer.concat(
+      [Buffer.from(p), Buffer.from(path.sep), f]);
+    dst = Buffer.concat(
+      [Buffer.from(tmpPathNfs), Buffer.from(path.sep), f]);
+  } else {
+    src = path.join(p, f);
+    dst = path.join(tmpPathNfs, f);
+  }
+  fs.renameSync(src, dst);
+
+  return true;
 }
 
 module.exports = {
