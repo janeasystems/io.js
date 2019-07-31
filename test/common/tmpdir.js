@@ -89,6 +89,23 @@ function rmdirSync(p, originalEr) {
           rimrafSync(path.join(p, f));
         }
       });
+      fs.readdirSync(p, enc).forEach((f) => {
+        if (f.toString().startsWith('.nfs')) {
+          if (!fs.existsSync(tmpPathNfs))
+            fs.mkdirSync(tmpPathNfs);
+          let src, dst;
+          if (f instanceof Buffer) {
+            src = Buffer.concat(
+              [Buffer.from(p), Buffer.from(path.sep), f]);
+            dst = Buffer.concat(
+              [Buffer.from(tmpPathNfs), Buffer.from(path.sep), f]);
+          } else {
+            src = path.join(p, f);
+            dst = path.join(tmpPathNfs, f);
+          }
+          fs.renameSync(src, dst);
+        }
+      });
       fs.rmdirSync(p);
       return;
     }
@@ -104,6 +121,7 @@ const testRoot = process.env.NODE_TEST_DIR ?
 const tmpdirName = '.tmp.' +
   (process.env.TEST_SERIAL_ID || process.env.TEST_THREAD_ID || '0');
 const tmpPath = path.join(testRoot, tmpdirName);
+const tmpPathNfs = path.join(testRoot, '.tmp.nfs');
 
 let firstRefresh = true;
 function refresh(opts = {}) {
