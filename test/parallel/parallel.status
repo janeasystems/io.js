@@ -35,3 +35,7 @@ test-async-hooks-http-parser-destroy: PASS,FLAKY
 [$system==freebsd]
 
 [$system==aix]
+
+[$system==linux && ($arch==arm || $arch==arm64)]
+test-child-process-server-close: SKIP
+test-tls-wrap-econnreset-pipe: SKIP
