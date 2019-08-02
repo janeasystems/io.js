@@ -135,6 +135,34 @@ function onexit() {
     console.error();
     throw e;
   }
+
+  openFilesCheck();
+}
+
+function openFilesCheck() {
+  const cmd = `lsof -p ${process.pid}`;
+
+  if (process.platform !== 'linux')
+    return;
+
+  let openFiles;
+  try {
+    openFiles = execSync(cmd, { encoding: 'utf8' });
+  } catch {
+    // Ignore errors
+    return;
+  }
+
+  const openFilesLines = openFiles.trim().split(/\r?\n/);
+  const tmpFiles =
+    openFilesLines.filter((l) => (l.indexOf(`${tmpdirName}/`) !== -1));
+
+  if (tmpFiles.length > 0) {
+    console.error('Open files in tmpPath:');
+    console.error(openFilesLines[0]); // header
+    console.error(tmpFiles.join('\n'));
+    throw new Error('Open files found in tmpPath');
+  }
 }
 
 module.exports = {
