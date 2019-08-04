@@ -17,7 +17,7 @@ const server = net.createServer((conn) => {
   const client = net.connect(common.PIPE, common.mustCall());
   client.on('data', () => {
     client.end(() => {
-      server.close();
+      server.close(common.mustCall());
     });
   });
 });
