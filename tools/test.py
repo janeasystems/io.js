@@ -539,7 +539,9 @@ class TestCase(object):
   def Run(self):
     try:
       result = self.RunCommand(self.GetCommand(), {
-        "TEST_SERIAL_ID": "%d" % self.serial_id,
+        # A serial number is needed in TEST_SERIAL_ID to have different IDs
+        # for each run of the same test when using '--repeat'
+        "TEST_SERIAL_ID": "%d-%s" % (self.serial_id, "-".join(self.path)),
         "TEST_THREAD_ID": "%d" % self.thread_id,
         "TEST_PARALLEL" : "%d" % self.parallel
       })
