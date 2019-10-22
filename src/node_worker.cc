@@ -57,7 +57,6 @@ Worker::Worker(Environment* env,
       per_isolate_opts_(per_isolate_opts),
       exec_argv_(exec_argv),
       platform_(env->isolate_data()->platform()),
-      array_buffer_allocator_(ArrayBufferAllocator::Create()),
       start_profiler_idle_notifier_(env->profiler_idle_notifier_started()),
       thread_id_(Environment::AllocateThreadId()),
       env_vars_(env->env_vars()) {
@@ -101,10 +100,6 @@ bool Worker::is_stopped() const {
   return stopped_;
 }
 
-std::shared_ptr<ArrayBufferAllocator> Worker::array_buffer_allocator() {
-  return array_buffer_allocator_;
-}
-
 // This class contains data that is only relevant to the child thread itself,
 // and only while it is running.
 // (Eventually, the Environment instance should probably also be moved here.)
@@ -114,8 +109,10 @@ class WorkerThreadData {
     : w_(w) {
     CHECK_EQ(uv_loop_init(&loop_), 0);
 
+    std::shared_ptr<ArrayBufferAllocator> allocator =
+        ArrayBufferAllocator::Create();
     Isolate* isolate = NewIsolate(
-        w->array_buffer_allocator_.get(),
+        allocator,
         &loop_,
         w->platform_);
     CHECK_NOT_NULL(isolate);
@@ -129,7 +126,7 @@ class WorkerThreadData {
       isolate_data_.reset(CreateIsolateData(isolate,
                                             &loop_,
                                             w_->platform_,
-                                            w->array_buffer_allocator_.get()));
+                                            allocator.get()));
       CHECK(isolate_data_);
       if (w_->per_isolate_opts_)
         isolate_data_->set_options(std::move(w_->per_isolate_opts_));
