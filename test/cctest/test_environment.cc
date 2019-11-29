@@ -46,7 +46,7 @@ TEST_F(EnvironmentTest, PreExeuctionPreparation) {
                                  v8::NewStringType::kNormal).ToLocalChecked())
       .ToLocalChecked();
   v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
-  CHECK(!result->IsString());
+  CHECK(result->IsString());
 }
 
 TEST_F(EnvironmentTest, AtExitWithEnvironment) {
@@ -113,7 +113,7 @@ TEST_F(EnvironmentTest, MultipleEnvironmentsPerIsolate) {
   AtExit(*env1, at_exit_callback1);
   AtExit(*env2, at_exit_callback2);
   RunAtExit(*env1);
-  EXPECT_TRUE(called_cb_1);
+  EXPECT_TRUE(!called_cb_1);
   EXPECT_FALSE(called_cb_2);
 
   RunAtExit(*env2);
