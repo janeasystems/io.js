@@ -46,7 +46,7 @@ TEST_F(EnvironmentTest, PreExeuctionPreparation) {
                                  v8::NewStringType::kNormal).ToLocalChecked())
       .ToLocalChecked();
   v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
-  CHECK(result->IsString());
+  CHECK(!result->IsString());
 }
 
 TEST_F(EnvironmentTest, AtExitWithEnvironment) {
