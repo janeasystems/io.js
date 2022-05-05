@@ -19,6 +19,10 @@
  * IN THE SOFTWARE.
  */
 
+
+#include <stdio.h>
+
+
 #include <assert.h>
 #include <stdlib.h>
 #include <direct.h>
@@ -645,6 +649,9 @@ void fs__open(uv_fs_t* req) {
     return;
   }
 
+  printf("\n%d open \"%ls\"\n", fd, req->file.pathw);
+  fflush(stdout);
+
   if (flags & UV_FS_O_FILEMAP) {
     FILE_STANDARD_INFO file_info;
     if (!GetFileInformationByHandleEx(file,
@@ -1066,6 +1073,17 @@ void fs__write(uv_fs_t* req) {
   struct uv__fd_info_s fd_info;
 
   VERIFY_FD(fd, req);
+
+  index = 0;
+  do {
+    printf("\n%d write %lu (%u/%u)\n",
+           fd,
+           req->fs.info.bufs[index].len,
+           1+index,
+           req->fs.info.nbufs);
+    fflush(stdout);
+    ++index;
+  } while (index < req->fs.info.nbufs);
 
   zero_offset.QuadPart = 0;
   restore_position = 0;

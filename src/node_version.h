@@ -41,11 +41,7 @@
 #endif
 
 #ifndef NODE_TAG
-# if NODE_VERSION_IS_RELEASE
 #  define NODE_TAG ""
-# else
-#  define NODE_TAG "-pre"
-# endif
 #else
 // NODE_TAG is passed without quotes when rc.exe is run from msbuild
 # define NODE_EXE_VERSION NODE_STRINGIFY(NODE_MAJOR_VERSION) "." \
