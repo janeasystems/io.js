@@ -2553,7 +2553,11 @@ void Simulator::CompareAndSwapHelper(const Instruction* instr) {
   T data = MemoryRead<T>(address);
   if (is_acquire) {
     // Approximate load-acquire by issuing a full barrier after the load.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
 
   if (data == comparevalue) {
@@ -2563,7 +2567,11 @@ void Simulator::CompareAndSwapHelper(const Instruction* instr) {
       local_monitor_.NotifyStore();
       GlobalMonitor::Get()->NotifyStore_Locked(&global_monitor_processor_);
       // Approximate store-release by issuing a full barrier before the store.
+#if defined(V8_OS_WIN)
+      MemoryBarrier();
+#else
       __sync_synchronize();
+#endif
     }
 
     MemoryWrite<T>(address, newvalue);
@@ -2609,7 +2617,11 @@ void Simulator::CompareAndSwapPairHelper(const Instruction* instr) {
 
   if (is_acquire) {
     // Approximate load-acquire by issuing a full barrier after the load.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
 
   bool same =
@@ -2621,7 +2633,11 @@ void Simulator::CompareAndSwapPairHelper(const Instruction* instr) {
       local_monitor_.NotifyStore();
       GlobalMonitor::Get()->NotifyStore_Locked(&global_monitor_processor_);
       // Approximate store-release by issuing a full barrier before the store.
+#if defined(V8_OS_WIN)
+      MemoryBarrier();
+#else
       __sync_synchronize();
+#endif
     }
 
     MemoryWrite<T>(address, newvalue_low);
@@ -2665,7 +2681,11 @@ void Simulator::AtomicMemorySimpleHelper(const Instruction* instr) {
 
   if (is_acquire) {
     // Approximate load-acquire by issuing a full barrier after the load.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
 
   T result = 0;
@@ -2702,7 +2722,11 @@ void Simulator::AtomicMemorySimpleHelper(const Instruction* instr) {
     local_monitor_.NotifyStore();
     GlobalMonitor::Get()->NotifyStore_Locked(&global_monitor_processor_);
     // Approximate store-release by issuing a full barrier before the store.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
 
   MemoryWrite<T>(address, result);
@@ -2733,7 +2757,11 @@ void Simulator::AtomicMemorySwapHelper(const Instruction* instr) {
   T data = MemoryRead<T>(address);
   if (is_acquire) {
     // Approximate load-acquire by issuing a full barrier after the load.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
 
   if (is_release) {
@@ -2741,7 +2769,11 @@ void Simulator::AtomicMemorySwapHelper(const Instruction* instr) {
     local_monitor_.NotifyStore();
     GlobalMonitor::Get()->NotifyStore_Locked(&global_monitor_processor_);
     // Approximate store-release by issuing a full barrier before the store.
+#if defined(V8_OS_WIN)
+    MemoryBarrier();
+#else
     __sync_synchronize();
+#endif
   }
   MemoryWrite<T>(address, reg<T>(rs));
 

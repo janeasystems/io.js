@@ -34,6 +34,11 @@ uintptr_t ProbeMemory(uintptr_t address, uintptr_t pc)
 // "ProbeMemory", but we want something more expressive on stack traces.
 #if V8_OS_DARWIN
     asm("_v8_internal_simulator_ProbeMemory");
+#elif defined(V8_OS_WIN) && defined(V8_HOST_ARCH_X64) && \
+    defined(V8_TARGET_ARCH_ARM64)  // Cross-compiling Windows x64 to arm64
+    ;
+__declspec(dllexport) uintptr_t
+    v8_internal_simulator_ProbeMemory(uintptr_t address, uintptr_t pc);
 #else
     asm("v8_internal_simulator_ProbeMemory");
 #endif
