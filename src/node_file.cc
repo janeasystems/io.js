@@ -1126,12 +1126,18 @@ static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
 
   CHECK(args[0]->IsString());
-  node::Utf8Value path(env->isolate(), args[0]);
+  std::string path = Utf8Value(env->isolate(), args[0]).ToString();
   THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, permission::PermissionScope::kFileSystemRead, path.ToStringView());
+      env, permission::PermissionScope::kFileSystemRead, path);
 
   uv_fs_t req;
-  int rc = uv_fs_stat(env->event_loop(), &req, *path, nullptr);
+
+  // Windows has some reserved file names such as con, prn, nul, etc.
+  // Such files can be accessed only if the path is prefixed with '\\.\'
+#ifdef _WIN32
+  path = "\\\\.\\" + path;
+#endif
+  int rc = uv_fs_stat(env->event_loop(), &req, path.c_str(), nullptr);
   if (rc == 0) {
     const uv_stat_t* const s = static_cast<const uv_stat_t*>(req.ptr);
     rc = !!(s->st_mode & S_IFDIR);
