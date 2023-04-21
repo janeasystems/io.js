@@ -1127,16 +1127,17 @@ static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsString());
   std::string path = Utf8Value(env->isolate(), args[0]).ToString();
+#ifdef _WIN32
+  // Windows needs the '\\?\' prefix to access files with long paths.
+  // Since uv_fs_stat expects it's already added, add it if missing. 
+  if (path.find("\\\\?\\") != 0) {
+    path = "\\\\?\\" + path;
+  }
+#endif
   THROW_IF_INSUFFICIENT_PERMISSIONS(
       env, permission::PermissionScope::kFileSystemRead, path);
 
   uv_fs_t req;
-
-  // Windows has some reserved file names such as con, prn, nul, etc.
-  // Such files can be accessed only if the path is prefixed with '\\.\'
-#ifdef _WIN32
-  path = "\\\\.\\" + path;
-#endif
   int rc = uv_fs_stat(env->event_loop(), &req, path.c_str(), nullptr);
   if (rc == 0) {
     const uv_stat_t* const s = static_cast<const uv_stat_t*>(req.ptr);
