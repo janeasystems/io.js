@@ -25,7 +25,7 @@ void DeadCodeEliminationPhase::Run(Zone* temp_zone) {
 #if V8_ENABLE_WEBASSEMBLY
       turboshaft::WasmJSLoweringReducer,
 #endif
-      turboshaft::BranchConditionDuplicationReducer>::Run(temp_zone);
+      turboshaft::BranchConditionDuplicationReducer, turboshaft::VariableReducerHotfix>::Run<false>(temp_zone);
 }
 
 }  // namespace v8::internal::compiler::turboshaft

@@ -3793,8 +3793,9 @@ class TSAssembler
     : public Assembler<reducer_list<TurboshaftAssemblerOpInterface, Reducers...,
                                     TSReducerBase>> {
  public:
-  using Assembler<reducer_list<TurboshaftAssemblerOpInterface, Reducers...,
-                               TSReducerBase>>::Assembler;
+  explicit TSAssembler(Graph& input_graph, Graph& output_graph,
+                       Zone* phase_zone)
+      : Assembler(input_graph, output_graph, phase_zone) {}
 };
 
 }  // namespace v8::internal::compiler::turboshaft

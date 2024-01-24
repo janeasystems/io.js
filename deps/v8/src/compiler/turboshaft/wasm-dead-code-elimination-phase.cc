@@ -23,7 +23,8 @@ void WasmDeadCodeEliminationPhase::Run(Zone* temp_zone) {
   CopyingPhase<DeadCodeEliminationReducer, StackCheckReducer,
                BranchConditionDuplicationReducer,
                LoadStoreSimplificationReducer,
-               ValueNumberingReducer>::Run(temp_zone);
+               ValueNumberingReducer,
+               VariableReducerHotfix>::Run<false>(temp_zone);
 }
 
 }  // namespace v8::internal::compiler::turboshaft
