@@ -4,8 +4,6 @@
 const common = require('../common.js');
 const { PassThrough, setDefaultHighWaterMark } = require('stream');
 
-setDefaultHighWaterMark(false, 16 * 1024);
-
 const bench = common.createBenchmark(main, {
   len: [64, 102400, 1024 * 64 * 16],
   type: ['utf', 'asc', 'buf'],
