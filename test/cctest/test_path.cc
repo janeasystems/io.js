@@ -62,7 +62,7 @@ TEST_F(PathTest, ToNamespacedPath) {
   BufferValue data_2(
       isolate_, v8::String::NewFromUtf8(isolate_, "C://").ToLocalChecked());
   ToNamespacedPath(*env, &data_2);
-  EXPECT_EQ(data_2.ToStringView(), "'\\\\?\\C:\\");
+  EXPECT_EQ(data_2.ToStringView(), "\\\\?\\C:\\");
   BufferValue data_3(
       isolate_,
       v8::String::NewFromUtf8(
