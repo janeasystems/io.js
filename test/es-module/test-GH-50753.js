@@ -20,7 +20,7 @@ const tmpdir = require('../common/tmpdir');
 
 const packageDirNameLen = Math.max(260 - tmpdir.path.length, 1);
 const packageDirName = tmpdir.resolve('x'.repeat(packageDirNameLen));
-const packageDirPath = path.resolve(packageDirName);
+const packageDirPath = path.toNamespacedPath(packageDirName);
 const packageJsonFilePath = path.join(packageDirPath, 'package.json');
 const mainDirName = 'main';
 const mainDirPath = path.resolve(packageDirPath, mainDirName);
@@ -37,6 +37,6 @@ fs.writeFileSync(
 fs.mkdirSync(mainDirPath);
 fs.writeFileSync(mainJsFilePath, 'console.log("hello world");');
 
-require('internal/modules/run_main').executeUserEntryPoint(packageDirPath);
+require('internal/modules/run_main').executeUserEntryPoint(packageDirName);
 
 tmpdir.refresh();

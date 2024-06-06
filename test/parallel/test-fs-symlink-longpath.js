@@ -8,7 +8,7 @@ const fs = require('fs');
 const tmpdir = require('../common/tmpdir');
 tmpdir.refresh();
 const tmpDir = tmpdir.path;
-const longPath = path.join(...[tmpDir].concat(Array(30).fill('1234567890')));
+const longPath = path.toNamespacedPath(path.join(...[tmpDir].concat(Array(30).fill('1234567890'))));
 fs.mkdirSync(longPath, { recursive: true });
 
 // Test if we can have symlinks to files and folders with long filenames

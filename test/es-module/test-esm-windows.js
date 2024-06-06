@@ -27,9 +27,9 @@ const imp = (file) => {
   { // Load a module
     const entry = rel('entry.mjs');
     const nmDir = rel('node_modules');
-    const mDir = rel('node_modules/con');
-    const pkg = rel('node_modules/con/package.json');
-    const script = rel('node_modules/con/index.mjs');
+    const mDir = path.toNamespacedPath(rel('node_modules/con'));
+    const pkg = path.toNamespacedPath(rel('node_modules/con/package.json'));
+    const script = path.toNamespacedPath(rel('node_modules/con/index.mjs'));
 
     await fs.writeFile(entry, 'export {default} from "con"');
     await fs.mkdir(nmDir);

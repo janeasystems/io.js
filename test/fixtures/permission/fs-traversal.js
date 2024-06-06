@@ -15,8 +15,8 @@ try {
 
 const blockedFolder = process.env.BLOCKEDFOLDER;
 const allowedFolder = process.env.ALLOWEDFOLDER;
-const traversalPath = allowedFolder + '/../file.md';
-const traversalFolderPath = allowedFolder + '/../folder';
+const traversalPath = path.toNamespacedPath(allowedFolder + '/../file.md');
+const traversalFolderPath = path.toNamespacedPath(allowedFolder + '/../folder');
 const bufferTraversalPath = Buffer.from(traversalPath);
 const uint8ArrayTraversalPath = new TextEncoder().encode(traversalPath);
 
@@ -93,7 +93,7 @@ const uint8ArrayTraversalPath = new TextEncoder().encode(traversalPath);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
-    resource: cwd.toString(),
+    resource: path.toNamespacedPath(cwd.toString()),
   }));
 }
 

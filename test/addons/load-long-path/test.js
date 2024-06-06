@@ -13,7 +13,7 @@ const tmpdir = require('../../common/tmpdir');
 // Make a path that is more than 260 chars long.
 // Any given folder cannot have a name longer than 260 characters,
 // so create 10 nested folders each with 30 character long names.
-let addonDestinationDir = path.resolve(tmpdir.path);
+let addonDestinationDir = path.toNamespacedPath(tmpdir.path);
 
 for (let i = 0; i < 10; i++) {
   addonDestinationDir = path.join(addonDestinationDir, 'x'.repeat(30));
