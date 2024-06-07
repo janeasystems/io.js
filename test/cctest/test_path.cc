@@ -75,6 +75,14 @@ TEST_F(PathTest, ToNamespacedPath) {
       data_3.ToStringView(),
       "\\\\?\\C:\\workspace\\node-test-binary-windows-js-"
       "suites\\node\\test\\fixtures\\permission\\deny\\protected-file.md");
+  BufferValue data_4(
+      isolate_,
+      v8::String::NewFromUtf8(
+          isolate_,
+          "\\\\?\\c:\\Windows/System")
+          .ToLocalChecked());
+  ToNamespacedPath(*env, &data_4);
+  EXPECT_EQ(data_4.ToStringView(), "\\\\?\\c:\\Windows\\System");
 #else
   BufferValue data(
       isolate_,

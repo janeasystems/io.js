@@ -290,6 +290,7 @@ void ToNamespacedPath(Environment* env, BufferValue* path) {
         memcpy(path->out() + unc_prefix.size(),
                resolved_path.c_str() + 2,
                resolved_path2.size() + 1);
+        return;
       }
     }
   } else if (IsWindowsDeviceRoot(resolved_path[0]) && resolved_path[1] == ':' &&
@@ -303,7 +304,15 @@ void ToNamespacedPath(Environment* env, BufferValue* path) {
     memcpy(path->out() + new_prefix.size(),
            resolved_path.c_str(),
            resolved_path.size() + 1);
+    return;
   }
+
+  size_t new_length = resolved_path.size();
+  path->AllocateSufficientStorage(new_length + 1);
+  path->SetLength(new_length);
+  memcpy(path->out(),
+          resolved_path.c_str(),
+          resolved_path.size() + 1);
 #endif
 }
 
